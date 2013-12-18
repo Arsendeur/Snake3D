@@ -12,8 +12,8 @@
             var direction = "left";
             var tail;
             var square = 100;
-            var espace = 5;
-            var tailleCubeConteneur = 1200;
+            var espace = 0;
+            var tailleCubeConteneur = 1000;
             var tailleCamera = 900;
             var snake = Array();
 			var scene = new THREE.Scene();
@@ -30,21 +30,21 @@
 					{ color:0xCC0000, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
-            mesh2.position.z = -5;
+            mesh2.position.z = 0;
 			var mesh3 = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
 				new THREE.MeshLambertMaterial(
 					{ color:0x33FF33, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
-            mesh3.position.z = -110;
+            mesh3.position.z = 100;
 
             snake.push(mesh1, mesh2, mesh3);
 
 			var cubeConteneur = new THREE.Mesh(
                 new THREE.CubeGeometry(tailleCubeConteneur, tailleCubeConteneur, tailleCubeConteneur),
-				new THREE.MeshLambertMaterial(
-					{ color:0xCC0000, wireframe: true /*tout ceci est du JSON*/}
+				new THREE.MeshBasicMaterial(
+					{ color: 'blue', wireframe: true /*tout ceci est du JSON*/}
 				)
             );
 
@@ -53,146 +53,284 @@
 			scene.add(mesh1);
 			scene.add(mesh2);
 			scene.add(cubeConteneur);
-			scene.add(new THREE.AmbientLight(0x222222));
+			//scene.add(new THREE.AmbientLight(0x222222));
 			
-			var lightGLobal = new THREE.PointLight(0xffffff);
-			lightGLobal.position.y = 1000;
-			scene.add(lightGLobal);
-
-			var lightCenter = new THREE.PointLight(/*0xff00ff*/0xc92835);
+			var lightCenter = new THREE.PointLight(0xffffff);
+			lightCenter.position.set = 5000;
 			scene.add(lightCenter);
+
+			var lightCenter = new THREE.PointLight(0xffffff);
+			lightCenter.position.x = 1500;
+			lightCenter.position.y = 0;
+			lightCenter.position.z = 3000;
+			scene.add(lightCenter);
+
+
 
 
 			//rendu
 	    	var renderer = new THREE.WebGLRenderer(
 	        	{canvas:document.getElementById("3d")}
 	    	);
+
 	    	var camera = new THREE.PerspectiveCamera(
 	    		75 /*fov*/, 4/3 /*ratio*/, 1 /*near*/, 10000 /*far*/
 	    	);
-	    	camera.position.set(tailleCamera, tailleCamera, tailleCamera);
+	    	camera.position.set(750, 0, 1500);
 	    	camera.lookAt(new THREE.Vector3(0,0,0));
 
 	    	renderer.setSize(640,480);
-	    	/*renderer.render(scene,camera);*/
+
+		var pomme = ApparitionPomme();
+
+
 	    	animate();
-            var exempleInterval = setInterval("animate()", 50);
+            var exempleInterval = setInterval("animate()", 100);
+
+		function ApparitionPomme()
+		{
+			
+                	var limiteCubeConteneurSupp =((cubeConteneur.position.x + (tailleCubeConteneur /2)));
+                	var limiteCubeConteneurInf =((cubeConteneur.position.x + (tailleCubeConteneur /2)));
+		
+			pommeX = Math.floor((Math.random()*5)+0)
+			pommeX *= Math.floor(Math.random()*2) == 1 ? square : -square;
+
+			pommeY = Math.floor((Math.random()*5)+0)
+			pommeY *= Math.floor(Math.random()*2) == 1 ? square : -square;
+
+			pommeZ = Math.floor((Math.random()*5)+0)
+			pommeZ *= Math.floor(Math.random()*2) == 1 ? square : -square;
+
+
+			for (var i = 0; i < snake.length  ; i++) {
+  				corpsDuSnake = snake[i];
+				if ( (pommeX == corpsDuSnake.position.x) && (pommeY == corpsDuSnake.position.y) && (pommeZ == corpsDuSnake.position.z) ) {
+                    ApparitionPomme();
+			}
+			}
+
+
+			var pomme = new THREE.Mesh(
+                new THREE.CubeGeometry(square, square, square),
+				new THREE.MeshLambertMaterial(
+					{ color:0x33FF33, wireframe: false /*tout ceci est du JSON*/}
+				)
+			);
+
+            		pomme.position.x = pommeX;
+            		pomme.position.y = pommeY
+            		pomme.position.z = pommeZ;
+
+
+			scene.add(pomme);
+			return pomme;
+
+		}
+
+		function MangerPomme(pomme, headSnake)
+		{
+
+			if ( (headSnake.position.x == pomme.position.x) && (headSnake.position.y == pomme.position.y) && (headSnake.position.z == pomme.position.z) ) {
+
+					AllongerSnake();
+					scene.remove(pomme);
+					newPomme = ApparitionPomme()
+					return newPomme;
+
+				}
+			return pomme;
+		}
+	
+		function AllongerSnake()
+		{
+
+                	tail = snake[snake.length - 1];
+			var newTail = new THREE.Mesh(
+			new THREE.CubeGeometry(square, square, square),
+					new THREE.MeshLambertMaterial(
+						{ color:couleurAleatoire(), wireframe: false /*tout ceci est du JSON*/}
+					)
+				);
+
+			newTail.position.x = tail.position.x;
+			newTail.position.y = tail.position.y;
+			newTail.position.z = tail.position.z;
+
+			switch(direction)
+			{
+			    case "left": 
+					newTail.position.x -= (square);
+			    break;
+
+			    case "top": 
+				newTail.position.y += (square);
+			    break;
+
+			    case "right": 
+				newTail.position.x -= (square);
+			    break;
+
+			    case "bottom": 
+				newTail.position.y += (square);
+			    break;
+
+			    case "devant": 
+				newTail.position.z -= (square);
+			    break;
+
+			    case "derriere": 
+				newTail.position.z += (square);
+			    break;
+
+			    default :
+				newTail.position.x -= (square);
+			    break;
+
+			}
+
+
+			snake.push(newTail);
+			scene.add(newTail);
+		}
 
             function horsChamp(cube)
             {
-                console.log(cube.position.z);
-                console.log(cubeConteneur.position.z);
-                if (cube.position.z > (cubeConteneur.position.z + tailleCubeConteneur))
-                    cube.position.z = cubeConteneur.position.z - tailleCubeConteneur;
 
-                if (cube.position.z < (cubeConteneur.position.z - tailleCubeConteneur ))
-                    cube.position.z = cubeConteneur.position.z + tailleCubeConteneur;
+                if (cube.position.z > (cubeConteneur.position.z + (tailleCubeConteneur /2)))
+                    cube.position.z = cubeConteneur.position.z - (tailleCubeConteneur /2);
 
-                if (cube.position.y > (cubeConteneur.position.y + tailleCubeConteneur))
-                    cube.position.y = cubeConteneur.position.y - tailleCubeConteneur;
+                if (cube.position.z < (cubeConteneur.position.z - (tailleCubeConteneur /2) ))
+                    cube.position.z = cubeConteneur.position.z + (tailleCubeConteneur /2);
 
-                if (cube.position.y < (cubeConteneur.position.y - tailleCubeConteneur ))
-                    cube.position.y = cubeConteneur.position.y + tailleCubeConteneur;
+                if (cube.position.y > (cubeConteneur.position.y + (tailleCubeConteneur /2 )))
+                    cube.position.y = cubeConteneur.position.y - (tailleCubeConteneur / 2);
+
+                if (cube.position.y < (cubeConteneur.position.y - (tailleCubeConteneur /2 )))
+                    cube.position.y = cubeConteneur.position.y + (tailleCubeConteneur /2);
+
+                if (cube.position.x > (cubeConteneur.position.x + (tailleCubeConteneur /2 )))
+                    cube.position.x = cubeConteneur.position.x - (tailleCubeConteneur / 2);
+
+                if (cube.position.x < (cubeConteneur.position.x - (tailleCubeConteneur /2 )))
+                    cube.position.x = cubeConteneur.position.x + (tailleCubeConteneur /2);
             }
 
-	    	function animate(){
+		function MangeSaQueue()
+		{
+			headSnake = snake[0];
+			for (var i = 1; i < snake.length  ; i++) {
+  				corpsDuSnake = snake[i];
+				if ( (headSnake.position.x == corpsDuSnake.position.x) && (headSnake.position.y == corpsDuSnake.position.y) && (headSnake.position.z == corpsDuSnake.position.z) ) {
+				console.log("PERDU");
+				clearInterval(exempleInterval);
+			}
+			}
 
+		}
+
+	    function animate()
+            {
+
+                head = snake[0];
+		pomme = MangerPomme(pomme, head);
+		IA();
                 document.onkeydown = changeDirection;
-                if(direction == "left")
+		
+                tail = snake.pop();
+                horsChamp(head);
+                tail.position.x = head.position.x;
+                tail.position.z = head.position.z;
+                tail.position.y = head.position.y;
+                switch(direction)
                 {
-                    tail = snake.pop();
-                    head = snake[0];
-                    horsChamp(head);
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.z += (square + espace);
-                    //horsChamp(tail);
+                    case "left": 
+                        tail.position.x -= (square + espace);
+                    break;
 
-                    snake.unshift(tail);
-                }
+                    case "top": 
+                        tail.position.y += (square + espace);
+                    break;
 
-                if(direction == "top")
-                {
-                    tail = snake.pop();
-                    head = snake[0];
-                    horsChamp(head);
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.y += (square + espace);
-                    snake.unshift(tail);
-                }
+                    case "right": 
+                        tail.position.x += (square - espace);
+                    break;
 
-                if(direction == "right")
-                {
-                    tail = snake.pop();
-                    head = snake[0];
-                    horsChamp(head);
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.z -= (square - espace);
-                    snake.unshift(tail);
-                }
+                    case "bottom": 
+                        tail.position.y -= (square - espace);
+                    break;
 
-                if(direction == "bottom")
-                {
-                    tail = snake.pop();
-                    head = snake[0];
-                    horsChamp(head);
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.y -= (square - espace);
-                    snake.unshift(tail);
-                }
+                    case "devant": 
+                        tail.position.z -= (square - espace);
+                    break;
 
-                if(direction == "devant")
-                {
-                    tail = snake.pop();
-                    head = snake[0];
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.x -= (square - espace);
-                    snake.unshift(tail);
-                }
+                    case "derriere": 
+                        tail.position.z += (square + espace);
+                    break;
 
-                if(direction == "derriere")
-                {
-                    tail = snake.pop();
-                    head = snake[0];
-                    tail.position.x = head.position.x;
-                    tail.position.z = head.position.z;
-                    tail.position.y = head.position.y;
-                    tail.position.x += (square + espace);
-                    snake.unshift(tail);
+                    default :
+                        tail.position.x += (square + espace);
+                    break;
+
                 }
+                snake.unshift(tail);
+			
+		MangeSaQueue();
 	    		renderer.render(scene,camera);
 
 
                 function changeDirection(event) {
                     if (event.keyCode == 37)
+				    if(direction != "right")
                         direction = "left";
 
                     if (event.keyCode == 38)
+				    if(direction != "bottom")
                         direction = "top";
 
                     if (event.keyCode == 39)
+				    if(direction != "left")
                         direction = "right";
 
                     if (event.keyCode == 40)
+				    if(direction != "top")
                         direction = "bottom";
 
                     if (event.keyCode == 33)
+				    if(direction != "derriere")
                         direction = "devant";
 
                     if (event.keyCode == 34)
+				    if(direction != "devant")
                         direction = "derriere";
                 }
 
             }
+
+		function couleurAleatoire() {
+
+			var lettres = '0123456789ABCDEF'.split('');
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+				color += lettres[Math.round(Math.random() * 15)];
+			}
+			return color;
+
+		}
+
+		function IA()
+		{
+			head = snake[0]
+			if(pomme.position.x != head.position.x) {
+				direction = 'left';
+			} else if (pomme.position.y != head.position.y){
+				direction = 'top';
+			} else if (pomme.position.z != head.position.z){
+				direction = 'devant';
+			}
+
+		}
+
 
 		</script>
 	</body>
