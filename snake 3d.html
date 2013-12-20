@@ -16,6 +16,9 @@
             var tailleCubeConteneur = 1000;
             var tailleCamera = 900;
             var snake = Array();
+            var texturePomme = THREE.ImageUtils.loadTexture('images/apple/pomme.jpg');
+
+
 			var scene = new THREE.Scene();
 			var mesh1 = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
@@ -113,8 +116,8 @@
 
 			var pomme = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
-				new THREE.MeshLambertMaterial(
-					{ color:0x33FF33, wireframe: false /*tout ceci est du JSON*/}
+				new THREE.MeshBasicMaterial(
+					{ map : texturePomme, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
 
