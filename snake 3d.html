@@ -16,6 +16,7 @@
             var direction = "left";
             var tail;
             var square = 100;
+            var taillePomme=65;
             var espace = 0;
             var tailleCubeConteneur = 1000;
             var tailleCamera = 900;
@@ -85,7 +86,8 @@
 	    	var camera = new THREE.PerspectiveCamera(
 	    		75 /*fov*/, 4/3 /*ratio*/, 1 /*near*/, 10000 /*far*/
 	    	);
-	    	camera.position.set(750, 0, 1500);
+	    	//camera.position.set(750, 0, 1500);
+	    	camera.position.set(650, 0, 1200);
 	    	camera.lookAt(new THREE.Vector3(0,0,0));
 
 	    	renderer.setSize(640,480);
@@ -121,12 +123,13 @@
 
 
 			var pomme = new THREE.Mesh(
-                new THREE.CubeGeometry(square, square, square),
+                new THREE.SphereGeometry(taillePomme, taillePomme, taillePomme),
 				new THREE.MeshBasicMaterial(
 					{ map : texturePomme, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
 
+                //new THREE.CubeGeometry(square, square, square),
             		pomme.position.x = pommeX;
             		pomme.position.y = pommeY
             		pomme.position.z = pommeZ;
@@ -236,6 +239,7 @@
 				if ( (headSnake.position.x == corpsDuSnake.position.x) && (headSnake.position.y == corpsDuSnake.position.y) && (headSnake.position.z == corpsDuSnake.position.z) ) {
 				alert("PERDU, votre score est de " + score);
 				clearInterval(exempleInterval);
+                location.reload();
 			}
 			}
 
