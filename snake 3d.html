@@ -8,7 +8,11 @@
 	<body>
 		<h1>Scene 3D</h1>
 		<canvas id="3d" style="border:1px"></canvas>
+        <div id="score"></div>
+        <div id="nbPartieCorp"></div>
 		<script>
+            var score = 0;
+            var nbBlocSnake=3;
             var direction = "left";
             var tail;
             var square = 100;
@@ -17,27 +21,29 @@
             var tailleCamera = 900;
             var snake = Array();
             var texturePomme = THREE.ImageUtils.loadTexture('images/apple/pomme.jpg');
+            var textureSnake = THREE.ImageUtils.loadTexture('images/snake/snake2.png');
+            var textureSnakeHead = THREE.ImageUtils.loadTexture('images/snake/snake_head.jpg');
 
 
 			var scene = new THREE.Scene();
 			var mesh1 = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
-				new THREE.MeshLambertMaterial(
-					{ color:0x0000ff, wireframe: false /*tout ceci est du JSON*/}
+				new THREE.MeshBasicMaterial(
+					{ map : textureSnake, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
             mesh1.position.z = 100;
 			var mesh2 = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
-				new THREE.MeshLambertMaterial(
-					{ color:0xCC0000, wireframe: false /*tout ceci est du JSON*/}
+				new THREE.MeshBasicMaterial(
+					{ map : textureSnake, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
             mesh2.position.z = 0;
 			var mesh3 = new THREE.Mesh(
                 new THREE.CubeGeometry(square, square, square),
-				new THREE.MeshLambertMaterial(
-					{ color:0x33FF33, wireframe: false /*tout ceci est du JSON*/}
+				new THREE.MeshBasicMaterial(
+					{ map : textureSnake, wireframe: false /*tout ceci est du JSON*/}
 				)
 			);
             mesh3.position.z = 100;
@@ -137,22 +143,25 @@
 			if ( (headSnake.position.x == pomme.position.x) && (headSnake.position.y == pomme.position.y) && (headSnake.position.z == pomme.position.z) ) {
 
 					AllongerSnake();
+                    score += 100;
 					scene.remove(pomme);
 					newPomme = ApparitionPomme()
 					return newPomme;
 
 				}
+            score -= 1;
 			return pomme;
 		}
 	
 		function AllongerSnake()
 		{
+            nbBlocSnake += 1;
 
                 	tail = snake[snake.length - 1];
 			var newTail = new THREE.Mesh(
 			new THREE.CubeGeometry(square, square, square),
-					new THREE.MeshLambertMaterial(
-						{ color:couleurAleatoire(), wireframe: false /*tout ceci est du JSON*/}
+				    new THREE.MeshBasicMaterial(
+						{ map : textureSnake, wireframe: false /*tout ceci est du JSON*/}
 					)
 				);
 
@@ -225,7 +234,7 @@
 			for (var i = 1; i < snake.length  ; i++) {
   				corpsDuSnake = snake[i];
 				if ( (headSnake.position.x == corpsDuSnake.position.x) && (headSnake.position.y == corpsDuSnake.position.y) && (headSnake.position.z == corpsDuSnake.position.z) ) {
-				console.log("PERDU");
+				alert("PERDU, votre score est de " + score);
 				clearInterval(exempleInterval);
 			}
 			}
@@ -242,6 +251,9 @@
 		
                 tail = snake.pop();
                 horsChamp(head);
+
+
+
                 tail.position.x = head.position.x;
                 tail.position.z = head.position.z;
                 tail.position.y = head.position.y;
@@ -276,6 +288,9 @@
                     break;
 
                 }
+
+                tail.material.map = textureSnakeHead;
+                head.material.map = textureSnake;
                 snake.unshift(tail);
 			
 		MangeSaQueue();
@@ -308,6 +323,8 @@
                         direction = "derriere";
                 }
 
+                document.getElementById('score').innerHTML = "score = " + score;
+                document.getElementById('nbPartieCorp').innerHTML = "Nombre de bloc du snake = " + nbBlocSnake;
             }
 
 		function couleurAleatoire() {
